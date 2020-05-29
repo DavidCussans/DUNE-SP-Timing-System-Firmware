@@ -1,0 +1,68 @@
+% XeLaTeX style packages
+
+\documentclass[a4paper,11pt]{article}
+\usepackage{minted}
+\usepackage{listings}
+\usepackage{pdflscape}
+%\usepackage{fontspec}
+%\defaultfontfeatures{Ligatures=TeX}
+% \setmainfont{Liberation Serif}
+\usepackage{microtype}
+\frenchspacing
+\usepackage{enumitem}
+\usepackage{color}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{hyperref}
+\usepackage[backend=bibtex]{biblatex}
+\addbibresource{bibliography.bib}
+%\bibliography{refs}
+
+\begin{document}
+
+\lstset{
+    frameround=fttt,
+    language=VHDL,
+    numbers=left,
+    breaklines=true,
+    keywordstyle=\color{blue}\bfseries, 
+    basicstyle=\ttfamily\color{red},
+    numberstyle=\color{black}
+    }
+
+\lstMakeShortInline[columns=fixed]|
+
+\title{DUNE-SP Timing System: Firmware}
+\begin{center}
+{\LARGE\bf DUNE-SP Timing System Firmware Description}
+\vspace{1cm}
+
+J. Brooke, D. Cussans, D. Newbold, S. Trilov \\
+\vspace*{1ex}
+v1 -- 29rd May 2020
+\end{center}
+\vspace*{\fill}
+\setcounter{tocdepth}{1}
+\tableofcontents
+\vspace*{\fill}
+
+\section*{Summary}
+
+This document describes the structure of the firmware used in the DUNE-SP timing system. 
+
+It is intended to be updated periodically as the specification is finalised and amended.
+
+\newpage
+\section{Overview}
+
+
+\subsection{Timing Master Functions}
+
+
+\clearpage
+\printbibliography
+
+\end{document}
+ 
