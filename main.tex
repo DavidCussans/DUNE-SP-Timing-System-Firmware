@@ -1,48 +1,16 @@
-% XeLaTeX style packages
-
 \documentclass{dune}
-\usepackage[utf8]{inputenc}
-%\usepackage{lineno}
+%\usepackage[utf8]{inputenc}
 \usepackage{graphicx}
-%\usepackage{xcolor}
-
-\usepackage{float}
-
-\usepackage{xspace}
-
-% if we aren't using the DUNE class then we need the packages...
-%\usepackage{siunitx}
-% end of packages included instead of using DUNE
-
+\usepackage{minted}
+\usepackage{listings}
+\usepackage{pdflscape}
+\usepackage{bytefield}
+\usepackage{biblatex}
+\usepackage{dirtree}
+\addbibresource{bibliography.bib}
 \input{units.tex}
-\usepackage[hidelinks]{hyperref}
 \input{defs.tex}
 \input{glossary.tex}
-
-\usepackage{biblatex}
-\addbibresource{bibliography.bib}
-
-\usepackage{minted}
-
-%\documentclass[a4paper,11pt]{article}
-%\usepackage{minted}
-%\usepackage{listings}
-%\usepackage{pdflscape}
-%\usepackage{fontspec}
-%\defaultfontfeatures{Ligatures=TeX}
-% \setmainfont{Liberation Serif}
-%\usepackage{microtype}
-%\frenchspacing
-%\usepackage{enumitem}
-%\usepackage{color}
-%\usepackage{geometry}
-%\usepackage{graphicx}
-%\usepackage{booktabs}
-%\usepackage{multirow}
-%\usepackage{hyperref}
-%\usepackage[backend=bibtex]{biblatex}
-%\addbibresource{bibliography.bib}
-%\bibliography{refs}
 
 \begin{document}
 
@@ -96,11 +64,74 @@ It is intended to be updated periodically as the specification is finalised and 
 
 This document describes the structure of the timing system firmware. There are two main components - the \dword{dts-sp-tm} and \dword{dts-sp-ep}
 
+\section{DTS-SP Firmware, Software Location}
+
+At the time of writing, DTS-SP firmware is hosted at \url{https://gitlab.cern.ch/protoDUNE-SP-DAQ/timing-board-firmware} . Scripts to test and configure the timing system firmware are hosted at \url{https://gitlab.cern.ch/protoDUNE-SP-DAQ/timing-board-software}
+
+\section{Building Firmware}
+
+The firmware is targeted at Xilinx FPGAs, but has kept the use of proprietary IP cores to a minimum so that endpoint functions can be ported to FPGAs from other manufacturers (e.g. Intel/Altera) if needed.
+
+The firmware is designed to be built with the \dword{ipbb} system and the firmware repository contains the necessary dependency files. The directory structure in the firmware repository follows the usual \dword{ipbb} structure having a |projects| directory containing the top level entity definitions and a |components| directory containing the functional blocks. The directory structure of the timing firmware repository is illustrated in \ref{fig:timingRepoDirectories}.
+
+The firmware for the central part of the timing system is designed to be controlled and monitored using the \dword{ipbus} package.
+
+\begin{figure}[h!]
+%    \centering
+\renewcommand*\DTstylecomment{\color{blue}}
+\renewcommand*\DTstyle{\ttfamily\textcolor{red}}
+\dirtree{%
+.1 timing-board-firmware.
+.2 components\DTcomment{Processing blocks}.
+.3 pdts.
+.4 addr\_table\DTcomment{IPBus address tables}.
+.4 firmware.
+.5 cfg\DTcomment{IPBB dependency files}.
+.5 cgn\DTcomment{IP cores}.
+.5 hdl\DTcomment{firmware for synthesis}.
+.5 sim\_hdl\DTcomment{firmware for simulation}.
+.5 ucf\DTcomment{synthesis constraints}.
+.2 projects\DTcomment{Top level files}.
+.3 master\DTcomment{Top level files for example timing master}.
+.4 addr\_table\DTcomment{IPBus address tables}.
+.4 firmware.
+.5 cfg\DTcomment{IPBB dependency files}.
+.5 cgn\DTcomment{IP cores}.
+.5 hdl\DTcomment{firmware for synthesis}.
+.5 sim\_hdl\DTcomment{firmware for simulation}.
+}
+    \caption{Directory tree for timing firmware repository}
+    \label{fig:timingRepoDirectories}
+\end{figure}
+
 \section{Timing Master}
 
-The structure of the timing master firmware follows the conventions of a typical \dword{ipbb} project.
+The timing master firmware produces a serialized data stream encoded in the \dword{spdts}   protocol\cite{ref:dts-sp-timing-protocol}. Fixed length (``synchronous'') and variable length (``asynchronous'') messages are encoded and transmitted as an 8b10b encoded stream. The timing master also receives a serial data stream from the endpoints.
+
+\subsection{Transmit Path}
+Figure \ref{fig:tx_txPhy} shows the last two blocks before transmission. The |tx| block and the |tx_phy|. The |tx| block encodes commands to a stream of 8 bit characters, together with a flag indicating if these should be control characters (``KChar'') or data characters. The |tx_phy| performs 8b10b encoding and produces a serial data stream. 
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics{timing_system_tx_02-crop.pdf}
+    \caption{Transmit encoder (tx) and transmit physical interface (tx\_phy) blocks in timing master}
+    \label{fig:tx_txPhy}
+\end{figure}
+
+\subsection{Receive Path}
+
+Figure \ref{fig:rx_rxPhy} shows the first two blocks that receive data from the endpoints, |rx_phy| and |rx|. The |rx_phy| block receives the 8b10b data, locates the word boundaries and produces a stream of 8-bit words, together with a flag indicating if they are data or control characters. The |rx| block decodes the data into fixed length and variable length messages which are passed on to further blocks.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics{timing_system_rx_02-crop.pdf}
+    \caption{Receive physical interface (rx\_phy) and command decoder (rx) blocks in timing master}
+    \label{fig:rx_rxPhy}
+\end{figure}
 
 \section{Timing Endpoint Interface}
+
+A timing endpoint uses the same firmware blocks for receiving and transmitting commands as the timing master. However, the endpoint is designed to receive timing information from the master. A timing endpoint can transmit a continuous stream of messages back to the timing master, and this ability is used in the \dword{pdsp1} \dword{ctb} and the hardware parts of the \dword{pdsp2} and DUNE  \dword{eti}. However, normally an endpoint does not transmit data until configured to do so by the timing master. The ``normally off'' behaviour of most endpoints allows passive optical splitting/combining to be used. 
 
 A timing endpoint is characterised by the following properties:
 
@@ -153,7 +184,7 @@ The decoder block exposes three sets of signals:
 {\color{red}FUTURE\_UPDATE} Write state transition diagram for the decoder.
 
 %\subsubsection{\textcolor{red}{Global\_clk} domain signals}
-\subsubsection{\textcolor{red}{Global clk} domain signals}
+\subsubsection{\textcolor{red}{global\_clk} domain signals}
 
 \begin{itemize}
 	\item |global_clk| (i) is the phase-adjusted 62.5MHz system clock from the PLL
@@ -172,13 +203,43 @@ The decoder block exposes three sets of signals:
 	\item |pll_adj| (o, 8b) is a word indicating the desired phase adjustment for global\_clock. The physical interface to the PLL is implemented by the host FPGA, since this may require communication via a range of means to the PLL depending on implementation.
 \end{itemize}
 
+\subsection{Endpoint Status}
+
+The endpoint receiver block goes through a number of transitions before it is ready to receive commands from the master. These are listed in table \ref{tab:ep_status}. The flow from one state to another is illustrated in figure \ref{fig:ep_status_flow}. If the endpoint enters an error state a reset is needed to move back to the the |init| state and start the process of re-initializing the link.
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{c|l} \toprule
+        Status & Meaning \\ \midrule
+        0x0 & Init (after reset)\\
+        0x1 & Waiting SFP for signal (LOS=0)\\
+        0x2 & Waiting CDR lock (LOL=0)\\
+        0x3 & Waiting for good frequency check\\
+        0x4 & Waiting for comma alignment\\
+        0x5 & Waiting for good packet\\
+        0x6 & Waiting for phase adjustment command\\
+        0x7 & Waiting for time stamp initialisation\\
+        0x8 & Ready\\
+        0xC & Command reception error\\
+        0xD & Error in time stamp check\\
+        0xE & Error in physical layer after lock (8b10b reception error)\\
+         \bottomrule
+    \end{tabular}
+    \caption{Status Codes from Endpoint}
+    \label{tab:ep_status}
+\end{table}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{DUNE SP Timing System States-crop.pdf}
+    \caption{Flow chart for endpoint timing states}
+    \label{fig:ep_status_flow}
+\end{figure}
 \clearpage
 
 \appendix
 
-\section{DTS-SP Firmware, Software}
 
-At the time of writing, DTS-SP firmware is hosted at \url{https://gitlab.cern.ch/protoDUNE-SP-DAQ/timing-board-firmware} . Scripts to test and configure the timing system firmware are hosted at \url{https://gitlab.cern.ch/protoDUNE-SP-DAQ/timing-board-software}
 
 
 

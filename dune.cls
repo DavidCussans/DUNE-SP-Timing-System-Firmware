@@ -111,8 +111,8 @@
 
 %% fixme: this needs to be controlled by "draft"
 % \RequirePackage[color]{showkeys}
-\RequirePackage[pagewise]{lineno}
-
+%\RequirePackage[pagewise]{lineno}
+\RequirePackage{lineno}
 
 
 

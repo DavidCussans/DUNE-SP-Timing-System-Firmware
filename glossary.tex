@@ -466,6 +466,8 @@ span a contiguous period of time as requested by a \gls{trigcommand}}
 
 \newduneabbrev{eti}{ETI}{External Trigger Interface}{Units receiving external signals into the \dword{spdts}}
 
+\newduneabbrev{ctb}{CTB}{Central Trigger Board}{The unit that receives hardware trigger signals at \dword{pdsp1} and sending a serialized data stream to the \dword{spts}}
+
 \newduneabbrev{gpsdo}{GPSDO}{GPS Disciplined Oscillator}{A crystal oscillator steered by GPS}
 
 \newduneabbrev{oxco}{OXCO}{Oven Controlled Crystal Oscillator}{A quartz crystal, housed in a temperature-controlled chamber, so that a constant temperature is maintained, in order to prevent changes in the frequency due to variations in ambient temperature}
@@ -881,7 +883,7 @@ milestone on the path to a full \gls{tdr}} % changed from ``technical proposal''
 
 \newduneabbrev{dts}{DTS}{Dune Timing System}{The timing and synchronization system for DUNE. An umbrella term encompassing both the \single and \dual detector module timing systems}
 
-\newduneabbrev{spts}{SPTS}{Single Phase Timing System}{A timing and synchronization system deployed at ProtoDUNE SP I. It distributes a clock and synchronization signals, but places considerably less burden on the end-points.}
+\newduneabbrev{spts}{PDSPTS}{ProtoDUNE Single Phase Timing System}{A timing and synchronization system deployed at ProtoDUNE SP I. It distributes a clock and synchronization signals, but places considerably less burden on the end-points.}
 
 \newduneabbrev{spdts}{DTS-SP}{DUNE Timing System-Single Phase}{A timing and synchronization system which will be developed and deployed at ProtoDUNE SP II, and eventually DUNE. It will distribute clock and synchronisations signal to \single detector modules only.}
 
@@ -958,3 +960,5 @@ milestone on the path to a full \gls{tdr}} % changed from ``technical proposal''
 \newduneword{lvds}{LVDS}{low-voltage differential signaling}
 
 \newduneword{ipbb}{IPBB}{IPBus Build, a system for building an FPGA configuration file from the source code.}
+
+\newduneword{ipbus}{IPBus}{IPBus, Firmware that implements a reliable high-performance control link for particle physics electronics, based on the IPbus protocol https://ipbus.web.cern.ch}
