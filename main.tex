@@ -12,8 +12,6 @@
 \input{defs.tex}
 \input{glossary.tex}
 
-\begin{document}
-
 \lstset{
     frameround=fttt,
     language=VHDL,
@@ -39,19 +37,14 @@
 
 %\lstMakeShortInline[columns=fixed]|
 
-\title{DUNE-SP Timing System: Firmware}
-\begin{center}
-{\LARGE\bf DUNE-SP Timing System Firmware Description}
-\vspace{1cm}
+\title{DUNE Timing System-Single Phase Firmware}
+\author{J. Brooke, D. Cussans, D. Newbold, S. Trilov}
+\date{v1 -- July 2020}
 
-J. Brooke, D. Cussans, D. Newbold, S. Trilov \\
-\vspace*{1ex}
-v1 -- 1st June 2020
-\end{center}
-\vspace*{\fill}
-\setcounter{tocdepth}{1}
+\begin{document}
+\maketitle
 \tableofcontents
-\vspace*{\fill}
+
 
 \section{Summary}
 
@@ -59,7 +52,6 @@ This document describes the structure of the firmware used in the DUNE-SP timing
 
 It is intended to be updated periodically as the specification is finalised and amended.
 
-\newpage
 \section{Overview}
 
 This document describes the structure of the timing system firmware. There are two main components - the \dword{dts-sp-tm} and \dword{dts-sp-ep}
@@ -131,7 +123,7 @@ Figure \ref{fig:rx_rxPhy} shows the first two blocks that receive data from the 
 
 \section{Timing Endpoint Interface}
 
-A timing endpoint uses the same firmware blocks for receiving and transmitting commands as the timing master. However, the endpoint is designed to receive timing information from the master. A timing endpoint can transmit a continuous stream of messages back to the timing master, and this ability is used in the \dword{pdsp1} \dword{ctb} and the hardware parts of the \dword{pdsp2} and DUNE  \dword{eti}. However, normally an endpoint does not transmit data until configured to do so by the timing master. The ``normally off'' behaviour of most endpoints allows passive optical splitting/combining to be used. 
+A timing endpoint uses the same firmware blocks for receiving and transmitting commands as the timing master. However, the endpoint is designed to receive timing information from the master. A timing endpoint can transmit a continuous stream of messages back to the timing master, and this ability is used in the \dword{pdsp1} \dword{ctb} and the hardware parts of the \dword{pdsp2} and the DUNE \dword{hsi}. However, normally an endpoint does not transmit data until configured to do so by the timing master. The ``normally off'' behaviour of most endpoints allows passive optical splitting/combining to be used. 
 
 A timing endpoint is characterised by the following properties:
 
@@ -172,7 +164,7 @@ The status of the decoder may be monitored locally via the status flags (see bel
 
 The decoder block exposes three sets of signals:
 
-\subsubsection{\textcolor{red}{sys\_clk} domain signals}
+\subsubsection[sys\_clk domain signals]{\textcolor{red}{sys\_clk} domain signals}
 
 \begin{itemize}
 	\item |sys_clk| (o) is the free-running local clock provided by the host FPGA
@@ -184,7 +176,7 @@ The decoder block exposes three sets of signals:
 {\color{red}FUTURE\_UPDATE} Write state transition diagram for the decoder.
 
 %\subsubsection{\textcolor{red}{Global\_clk} domain signals}
-\subsubsection{\textcolor{red}{global\_clk} domain signals}
+\subsubsection[global\_clk domain signals]{\textcolor{red}{global\_clk} domain signals}
 
 \begin{itemize}
 	\item |global_clk| (i) is the phase-adjusted 62.5MHz system clock from the PLL
@@ -255,7 +247,7 @@ entity pdts_endpoint is
     SCLK_FREQ : real    := 62.5;        -- Frequency (MHz) of the supplied sclk
                                         -- ( 62.5MHz for DUNE , 50MHz for ProtoDUNE-1 )
     EN_TX     : boolean := false        -- Enable endpoint to originate messages.
-                                        -- Only for ETI (CTB in ProtoDUNE-1)
+                                        -- Only for HSI (CTB in ProtoDUNE-1)
     );
   port(
     sclk       : in  std_logic;         -- Free-running system clock
@@ -300,7 +292,7 @@ Where the ports are as described below:
 
 \item |SCLK_FREQ| should be set to the frequency of the supplied system clock ``sclk'' in MHz
 
-\item |EN_TX| should be left at the default of false unless the endpoint is to be a source of messages rather than responding to them. Only set true for ETI in DUNE, or CTB in ProtoDUNE
+\item |EN_TX| should be left at the default of false unless the endpoint is to be a source of messages rather than responding to them. Only set true for \dword{hsi} in DUNE, or CTB in ProtoDUNE
 
 \item |sclk| is a free-running system clock at a frequency of your choice. There is no clock
 buffering or other manipulation inside the endpoint block.
@@ -361,10 +353,10 @@ subsequent words of commands).
 \item |tstamp| (|clk| domain) is the system-wide 64b timestamp.
 
 \item |tsync_in| (|clk| domain) is the interface for sending fixed length (synchronous) commands back to the master, and should
-only be used by the ETI in DUNE (CTB in ProtoDUNE). Others should leave it disconnected.
+only be used by the \dword{hsi} in DUNE (CTB in ProtoDUNE). Others should leave it disconnected.
 
 \item |tsync_out| (|clk| domain) is the handshaking signals accompanying |tsync_in|, and should
-only be used by the ETI in DUNE (CTB in ProtoDUNE).
+only be used by the \dword{hsi} in DUNE (CTB in ProtoDUNE).
 
 \end{itemize}
 
